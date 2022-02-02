@@ -105,25 +105,26 @@ const fakeSellOrder1 = {
 export class TradeBotPageComponent {
 
   accountNumber: string;
-  
+
   accountsData: any;
 
   // largecapTickers = ['TSM', 'TSLA', 'BABA', 'WMT', 'DIS', 'BAC', 'NVDA', 'PYPL', 'INTC', 'NFLX']
   largecapTickers = []
   // etfTickers = ['IWM', 'QQQ', 'EEM', 'EWZ', 'IWM', 'XLF', 'SQQQ', 'SLV', 'GDX', 'XLE']
-  etfTickers = []
-  // memeStonkTickers = ['GME', 'AMC', 'MVIS', 'VIAC', 'RKT', 'AMD', 'MSFT', 'PLTR', 'TLRY', 'NIO', 'UBER', 'APHA', 'EBAY']
+  etfTickers = ['SPY', 'QQQ', 'SOXL']
+  memeStonkTickers = ['GME', 'AMC', 'MVIS', 'VIAC', 'RKT', 'AMD', 'MSFT', 'PLTR', 'TLRY', 'NIO', 'UBER', 'APHA', 'EBAY', 'MDB', 'NFLX', 'TSLA', 'NVDA', 'DIS', 'SNAP', 'COST', 'SBUX', 'UNH', 'CVS', 'UPS', 'SHW']
   // memeStonkTickers = ['GME', 'AMC', 'MVIS', 'VIAC', 'RKT', 'AMD', 'MSFT', 'PLTR', 'TLRY', 'NIO', 'UBER', 'APHA', 'EBAY', 'MDB']
-  // bestInClassTickers = ['GOOG', 'APPL', 'AMZN', 'FB', 'COST', 'EW', 'BAND', 'SPOT', 'MAXR', 'LW', 'BYSI']
-  memeStonkTickers = ['GME', 'MDB']
-  bestInClassTickers = ['GOOG', 'APPL', 'AMZN', 'FB', 'COST']
+  solidProfitMakersTickers = ['MELI', 'APPL', 'AMZN', 'FB', 'COST', 'EW', 'BAND', 'SPOT', 'MAXR', 'LW', 'HD', 'MARA', 'BITO']
+  // memeStonkTickers = ['GME', 'MDB']
+  bestInClassTickers = ['GOOG', 'GOOGL', 'APPL', 'AMZN', 'FB', 'COST']
 
   rowsInTickerTable = 0
   arrayOfRowIndicies = []
 
   allSymbols = []
 
-  strangulations = [];
+  // strangulations = [];
+  analyzedSpreads = [];
 
   constructor(private http: HttpClient,
     private tdApiSvc: TdApiService,
@@ -140,14 +141,14 @@ export class TradeBotPageComponent {
       ...this.largecapTickers,
       ...this.etfTickers,
       ...this.memeStonkTickers,
-      ...this.bestInClassTickers
+      ...this.solidProfitMakersTickers
     ]
 
     this.rowsInTickerTable = Math.max(
       this.largecapTickers.length,
       this.etfTickers.length,
       this.memeStonkTickers.length,
-      this.bestInClassTickers.length
+      this.solidProfitMakersTickers.length
     );
 
     this.arrayOfRowIndicies = Array.from(Array(this.rowsInTickerTable).keys())
@@ -166,12 +167,11 @@ export class TradeBotPageComponent {
         // const minAcceptableGamma = -0.01
         // const maxAcceptableGamma = 0.01
 
-        console.log('chain for ' + symbol + ': ', optionChain)
-        // console.log(optionChain)
+        // console.log('chain for ' + symbol + ': ', optionChain)
 
         if (optionChain['underlying']) {
 
-          this.strangulations = this.strangulator.analyzePutSpreads(symbol, optionChain.putExpDateMap, optionChain.underlying)
+          const spreadsForTicker = this.strangulator.analyzePutSpreads(symbol, optionChain.putExpDateMap, optionChain.underlying)
 
           // const strangulation = this.strangulator.strangulate(
           //   optionChain['callExpDateMap'],
@@ -182,7 +182,8 @@ export class TradeBotPageComponent {
           //   minAcceptableGamma,
           //   maxAcceptableGamma
           // )
-          // this.strangulations.push(strangulation);
+
+          this.analyzedSpreads.push(spreadsForTicker);
 
           // this.strangulations = this.strangulations.filter(strangulation => {
           //   return strangulation.length > 0
@@ -193,12 +194,15 @@ export class TradeBotPageComponent {
           // })
 
           // console.log('the gud ones are..... ', this.strangulations);
+
+          this.analyzedSpreads = this.analyzedSpreads.sort((a, b) => {
+
+            console.log('comparing toml score ' + a[0].tomlScore + ' to ' + b[0].tomlScore)
+
+            return a[0].tomlScore > b[0].tomlScore ? -1 : 1
+          })
         }
-
       })
-
     }
-
   }
-
 }

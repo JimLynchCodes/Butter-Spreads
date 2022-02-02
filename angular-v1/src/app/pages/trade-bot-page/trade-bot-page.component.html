@@ -50,19 +50,22 @@
     </table>
 
     <h4>
-      Top Strangles...
+      Top Put Spreads...
     </h4>
 
     <br />
 
-    <ng-container *ngFor="let strangulation of strangulations">
+    <ng-container *ngFor="let analyzedSpread of analyzedSpreads">
 
-      <ng-container *ngIf="strangulation.length > 0">
+      <ng-container *ngIf="analyzedSpread.length > 0">
         <h3>
           <!-- ok... -->
           <!-- {{strangulation[0] | json}} -->
-          {{strangulation[0].symbol}} &nbsp; &nbsp; 
-            last: ${{strangulation[0].underlyingLast}}
+
+          <!-- {{analyzedSpread | json}} -->
+          {{analyzedSpread[0].ticker}} &nbsp; &nbsp; &nbsp; | 
+          &nbsp; &nbsp; &nbsp;
+            last: ${{analyzedSpread[0].underlyingPrice}}
         </h3>
       </ng-container>
 
@@ -72,30 +75,38 @@
 
         <thead class="thead-dark">
           <tr>
-            <th scope="col" class="text-center text-wrap">Expiration</th>
-            <th scope="col" class="text-center text-wrap">Call Strike</th>
-            <th scope="col" class="text-center text-wrap">Put Strike</th>
-            <th scope="col" class="text-center text-wrap">Net Delta</th>
-            <th scope="col" class="text-center text-wrap">Net Gamma</th>
+            <th scope="col" class="text-center text-wrap">Higher Strike<br/>(Sell Short)</th>
+            <th scope="col" class="text-center text-wrap">Lower Strike<br/>(Buy Long)</th>
+            <th scope="col" class="text-center text-wrap">Expiration Cycle</th>
+            <th scope="col" class="text-center text-wrap">Price to Sell Higher Strike</th>
+            <th scope="col" class="text-center text-wrap">Price to Buy Lower Strike</th>
             <th scope="col" class="text-center text-wrap">Net Theta</th>
-            <th scope="col" class="text-center text-wrap">Estimated Buying Power Effect</th>
-            <th scope="col" class="text-center text-wrap">Theta Power</th>
+            <th scope="col" class="text-center text-wrap">Net Delta</th>
+            <th scope="col" class="text-center text-wrap">Net Credit To Collect</th>
+            <th scope="col" class="text-center text-wrap">Max Loss<br/>(width of strikes - credit collected)</th>
+            <th scope="col" class="text-center text-wrap">TOML score
+              <br/>theta * 10,000 <br/>/ max loss
+            </th>
           </tr>
         </thead>
 
         <tbody class="text-center">
 
-          <ng-container *ngFor="let strangulationRow of strangulation">
+          <ng-container *ngFor="let analyzedSpreadRow of analyzedSpread">
+
+            <!-- {{analyzedSpreadRow | json}} -->
 
             <tr scope="row">
-              <td>{{strangulationRow.callExpiration}}</td>
-              <td>{{strangulationRow.callStrike}}</td>
-              <td>{{strangulationRow.putStrike}}</td>
-              <td>{{+strangulationRow.netDelta.toFixed(4)}}</td>
-              <td>{{strangulationRow.netGamma.toFixed(3)}}</td>
-              <td>{{strangulationRow.netTheta.toFixed(2)}}</td>
-              <td>{{strangulationRow.buyingPowerEffect.toFixed(2)}}</td>
-              <td>{{strangulationRow.thetaPower.toFixed(2)}}</td>
+              <td>{{analyzedSpreadRow.higherStrike}}</td>
+              <td>{{analyzedSpreadRow.lowerStrike}}</td>
+              <td>{{analyzedSpreadRow.expirationCycle}}</td>
+              <td>{{+analyzedSpreadRow.higherStrikePutBidAskMidpoint.toFixed(3)}}</td>
+              <td>{{+analyzedSpreadRow.lowerStrikePutBidAskMidpoint.toFixed(3)}}</td>
+              <td>{{analyzedSpreadRow.netTheta.toFixed(3)}}</td>
+              <td>{{+analyzedSpreadRow.netDelta.toFixed(4)}}</td>
+              <td>{{analyzedSpreadRow.netCreditForSpread.toFixed(2)}}</td>
+              <td>{{+analyzedSpreadRow.maxLoss.toFixed(2)}}</td>
+              <td>{{+analyzedSpreadRow.tomlScore.toFixed(4)}}</td>
             </tr>
           </ng-container>
         </tbody>
